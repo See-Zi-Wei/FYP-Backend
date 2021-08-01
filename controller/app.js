@@ -490,6 +490,274 @@ app.put('/host/status/:id', function (req, res) {
     });
   });
 
+
+
+//Rhithan's code
+app.post('/user/', function (req, res) {
+    console.log(" User id ");
+
+    var user_id = req.body.user_id;
+    var user_role_id = req.body.user_role_id;
+    var department_id = req.body.department_id;
+    var location_id = req.body.location_id;
+    var password_hash = req.body.password_hash;   
+    var username = req.body.username
+    var full_name = req.body.full_name;
+    var picture = req.body.picture;
+    var email = req.body.email;
+    var job_title = req.body.job_title;
+    var description = req.body.description
+    var status = req.body.status
+    var created_time = req.body.created_time
+    var created_by = req.body.created_by
+    var updated_time = req.body.updated_time
+    var updated_by = req.body.updated_by
+    var last_login_time = req.body.last_login_time
+    var last_login_ip = req.body.last_login_ip
+    
+    database.createUser(user_id,user_role_id,department_id,location_id,password_hash,username,full_name,email,picture,job_title,description,status,created_time,created_by,updated_time,updated_by,last_login_time,last_login_ip , function (err, result) {
+        if (err) {
+            res.status(500);
+            res.send(`{"Message":"Internal Server Error"}`);
+      
+          } else {
+          // If there is no error, Print Result
+            res.status(200)
+            console.log ("Successfully created User!")
+            res.send(`{"Message":"Successfully created User!"}`);
+          }
+    });
+});
+
+
+
+app.get('/api/listings/:listingsid', function (req, res) {
+        var id = req.params.listingsid;
+        console.log("READING");
+
+    });
+
+
+   
+
+
+app.post('/render_job', function (req, res) {
+  var frame_id = req.body.frame_id
+    var render_time = req.body.render_time;
+    var done = req.body.done;
+    var fail = req.body.fail;
+    var progress = req.body.progress;
+    var busy = req.body.busy;
+    var maya_version= req.body.maya_version;
+    var renderer = req.body.renderer;
+    var scene_path = req.body.scene_path;
+   
+  
+    // Connect to Database
+    database.createrenderJob (frame_id,render_time,done,fail,progress,busy,maya_version,renderer,scene_path, function (err, result) {
+  
+      // If there is an error, Print Error Status & Message   
+      if (err) {
+        res.status(500);
+        res.send(`{"Message":"Internal Server Error"}`);
+  
+      } else {
+      // If there is no error, Print Result
+        res.status(200)
+        console.log ("Successfully created Comp Job!")
+        res.send(`{"Message":"Successfully created Comp Job!"}`);
+      }
+    });
+  });
+
+  app.delete('/render_job', function (req, res) {
+
+    var frame_id = req.body.frame_id
+    var render_time = req.body.render_time;
+    var done = req.body.done;
+    var fail = req.body.fail;
+    var progress = req.body.progress;
+    var busy = req.body.busy;
+    var maya_version= req.body.maya_version;
+    var renderer = req.body.renderer;
+    var scene_path = req.body.scene_path;
+  
+    database.deleterenderJob (frame_id,render_time,done,fail,progress,busy,maya_version,renderer,scene_path, function (err, result) {
+    
+      // If there is an error, Print Error Status & Message   
+      if (err) {
+        res.status(500);
+        res.send(`{"Message":"Internal Server Error"}`);
+  
+      } else {
+      // If there is no error, Print Result
+        res.status(200)
+        console.log ("Successfully deleted Comp Job!")
+        res.send(`{"Message":"Successfully deleted Comp Job!"}`);
+      }
+    });
+  });
+
+  app.put('/frames/status/:id', function (req, res) {
+
+    // Attributes required for Update Status
+    var frame_id = req.params.id;
+    var status = req.body.status;
+  
+    // Connect to database
+    database.updateRenderjobsStatus (status, frame_id, function (err, result) {
+  
+  
+      // If there is an error, Print Error Status & Message
+        if (err) {
+   
+          res.status(500);
+          res.send(`{"Message":"Internal Server Error"}`);
+           
+        } else {
+  
+          // If there is no error, Print Result
+          res.status(200);
+          res.send(`{{"Message":"Status Updated"}}`);
+          console.log(result)
+        }
+      });
+    });
+
+
+    app.get('/render_job', (req,res) => {
+
+      // Connect to Database
+      database.getRenderJob (function (err, result) {
+
+        // If there is an error, Print Error Status & Message
+          if (err) {
+            res.status(500);
+            res.send(`{"Message":"Internal Server Error"}`);
+
+          } else {
+          // If there is no error, Print Result
+              res.status(200).send(result);
+              console.log(result)
+          }
+      });
+})
+
+app.put('/renderjobs/status/:id', function (req, res) {
+
+  // Attributes required for Update Status
+  var frame_id = req.params.id;
+  var status = req.body.status;
+
+  // Connect to database
+  database.updateFrameJobsStatus (status, frame_id, function (err, result) {
+
+
+    // If there is an error, Print Error Status & Message
+      if (err) {
+ 
+        res.status(500);
+        res.send(`{"Message":"Internal Server Error"}`);
+         
+      } else {
+
+        // If there is no error, Print Result
+        res.status(200);
+        res.send(`{{"Message":"Status Updated"}}`);
+        console.log(result)
+      }
+    });
+  });
+
+  
+app.put('/compjobs/status/:id', function (req, res) {
+
+  // Attributes required for Update Status
+  var comp_id = req.params.id;
+  var status = req.body.status;
+
+  // Connect to database
+  database.updateCompJobsStatus (status, comp_id, function (err, result) {
+
+
+    // If there is an error, Print Error Status & Message
+      if (err) {
+ 
+        res.status(500);
+        res.send(`{"Message":"Internal Server Error"}`);
+         
+      } else {
+
+        // If there is no error, Print Result
+        res.status(200);
+        res.send(`{{"Message":"Status Updated"}}`);
+        console.log(result)
+      }
+    });
+  });
+
+  app.put('/hosts/status/:id', function (req, res) {
+
+    // Attributes required for Update Status
+    var host_id = req.params.id;
+    var status = req.body.status;
+  
+    // Connect to database
+    database.updatehostStatus (status, host_id, function (err, result) {
+  
+  
+      // If there is an error, Print Error Status & Message
+        if (err) {
+   
+          res.status(500);
+          res.send(`{"Message":"Internal Server Error"}`);
+           
+        } else {
+  
+          // If there is no error, Print Result
+          res.status(200);
+          res.send(`{{"Message":"Status Updated"}}`);
+          console.log(result)
+        }
+      });
+    });
+
+    app.put('/user/:id/password_hash', function (req, res, next) {
+
+      var user_id = req.params.id;
+      var password_hash = req.body.password_hash;
+      console.log("password>>",password_hash);
+          // Connect to database
+          database.resetPassword (password_hash, user_id, function (err, result, token) {
+              if (!err) {
+  
+                  // Unknown User ID (user_id not found in database)
+                  if (res == 'null') {
+                    res.status(404);
+                    console.log ("User ID not found")
+                    res.json({ success: false, UserData: JSON.stringify(result), token: token, status: 'User ID not found' });
+                    res.send();
+  
+                  } 
+  
+  
+                  else {
+  
+                  
+                  // Success
+                      res.status(200);
+                      console.log ("Password Found")
+                      res.json({ success: true, UserData: JSON.stringify(result), token: token, message: 'Password Found' });
+                      res.send();
+                  }
+              } else {
+  
+                  // Unexpected Server Error
+                  next({ body: { error: err.message, code: 'UNEXPECTED_ERROR' }, status: 500 });
+              }
+          });
+  });
+
 // // PUT /host_license/:id FUNCTION updateHostLicense [Host License Table]
 // app.put('/host_license/:id', function (req, res) {
 
