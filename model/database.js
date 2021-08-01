@@ -419,6 +419,271 @@ function updateHostStatus (status, host_id, callback) {
     });
 }
 
+
+//Rhithan's code
+
+function createUser (user_id,user_role_id,department_id,location_id,password_hash,username,full_name,email,picture,job_title,description,status,created_time,created_by,updated_time,updated_by,last_login_time,last_login_ip , callback) {
+
+    // Connect to Database
+    const pool = getDatabasePool();
+ 
+     // SQL Query/Statement to Retrieve Data from Database Tables
+    const sql = 'INSERT INTO "user" (user_id,user_role_id,department_id,location_id,password_hash,username,full_name,email,picture,job_title,description,status,created_time,created_by,updated_time,updated_by,last_login_time,last_login_ip) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18)';
+ 
+         // SQL Query - Database
+         pool.query(sql, [user_id,user_role_id,department_id,location_id,password_hash,username,full_name,email,picture,job_title,description,status,created_time,created_by,updated_time,updated_by,last_login_time,last_login_ip ], function (err, res) {
+ 
+              // If error, Print Error
+           if (err) {
+             console.log(err);
+             return callback(err, null);
+           } 
+ 
+           // Else, Print Res.rows (Result) 
+           else {
+               console.log("Created Successfully")
+               return callback(null, res.rows);
+           }
+         });
+ };
+
+
+
+ function resetPassword (password_hash, old_password, user_id, callback) {
+
+    // Get Connection
+    const pool = getDatabasePool()
+
+    // SQL Query 
+    const sql = 'SELECT * FROM "user" WHERE password_hash = $1';
+
+
+    pool.query(sql, [old_password], function (err, res) {
+
+        if (err) {
+            return callback(err, null);
+
+        } else if (res.rows.length == 0) {
+
+            console.log ("The Old Password that you have entered is incorrect")
+            
+            return callback(err, res.rows);
+
+        } else if (res.rows.length > 0) {
+
+            console.log ("Rows Returned")
+
+            // SQL Qeury
+            const sql = 'UPDATE "user" SET password_hash = $1 WHERE user_id = $2';
+            
+             // UPDATE Query
+             pool.query(sql, [password_hash, user_id], function (err, result) {
+
+                console.log(result)
+                if (result.rows.length == 0) {
+                    return callback(err, null);
+
+                } else if (result.rows.length>0) {
+                    return callback(null, res.rows);
+                }
+            });
+        }
+    })
+}
+
+function createrenderJob (frame_id,render_time,done,fail,progress,busy,maya_version,renderer,scene_path, callback) {
+
+    // Connect to Database
+    const pool = getDatabasePool();
+ 
+     // SQL Query/Statement to Retrieve Data from Database Tables
+    const sql = 'INSERT INTO render_job (frame_id,render_time,done,fail,progress,busy,maya_version,renderer,scene_path) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)';
+ 
+         // SQL Query - Database
+         pool.query(sql, [frame_id,render_time,done,fail,progress,busy,maya_version,renderer,scene_path,], function (err, res) {
+ 
+              // If error, Print Error
+           if (err) {
+             console.log(err);
+             return callback(err, null);
+           } 
+ 
+           // Else, Print Res.rows (Result) 
+           else {
+               console.log("Created Successfully")
+               return callback(null, res.rows);
+           }
+         });
+ };
+
+  // For DELETE Comp Job [Comp Job Table]
+function deleterenderJob (frame_id,render_time,done,fail,progress,busy,maya_version,renderer,scene_path, callback) {
+
+    // Connect to Database
+    const pool = getDatabasePool();
+ 
+     // SQL Query/Statement to Retrieve Data from Database Tables
+    const sql = 'DELETE FROM render_job WHERE frame_id = $1 AND render_time = $2 AND done = $3 AND fail = $4 AND progress = $5 AND busy = $6 AND maya_version = $7 AND renderer = $8 AND scene_path =$9';
+ 
+         // SQL Query - Database
+         pool.query(sql, [frame_id,render_time,done,fail,progress,busy,maya_version,renderer,scene_path], function (err, res) {
+ 
+              // If error, Print Error
+           if (err) {
+             console.log(err);
+             return callback(err, null);
+           } 
+ 
+           // Else, Print Res.rows (Result) 
+           else {
+               console.log("Deleted Successfully")
+               return callback(null, res.rows);
+           }
+         });
+ };
+
+
+ function updateRenderjobsStatus (status, frame_id, callback) {
+
+    // Get Connection
+    const pool = getDatabasePool()
+
+
+    // SQL Query
+    var sql = 'UPDATE frames  SET status = $1 WHERE frame_id = $2';
+                    
+    // Query
+    pool.query (sql, [status, frame_id], function (err, res) {
+        if(err) {
+            console.log(err);
+        } else {
+            console.log (res.rows);
+        }
+            return callback (err, res);
+    });
+}
+
+function getRenderJob (callback) {
+
+    // Get Connection
+    const pool = getDatabasePool();
+
+    // SQL Query
+    const sql = 'SELECT * FROM render_job';
+
+    // Query
+    pool.query(sql, function (err, res) {
+        if (err) {
+            console.log(err);
+            return callback(err, null);
+        }
+        else {
+            return callback(null, res.rows);
+        }
+    });
+}
+
+function updateFrameJobsStatus (status, frame_id, callback) {
+
+    // Get Connection
+    const pool = getDatabasePool()
+
+
+    // SQL Query
+    var sql = 'UPDATE render_job  SET status = $1 WHERE frame_id = $2';
+                    
+    // Query
+    pool.query (sql, [status, frame_id], function (err, res) {
+        if(err) {
+            console.log(err);
+        } else {
+            console.log (res.rows);
+        }
+            return callback (err, res);
+    });
+}
+
+
+function updateCompJobsStatus (status, comp_id, callback) {
+
+    // Get Connection
+    const pool = getDatabasePool()
+
+
+    // SQL Query
+    var sql = 'UPDATE comp_job  SET status = $1 WHERE comp_id = $2';
+                    
+    // Query
+    pool.query (sql, [status, comp_id], function (err, res) {
+        if(err) {
+            console.log(err);
+        } else {
+            console.log (res.rows);
+        }
+            return callback (err, res);
+    });
+}
+
+
+function updatehostStatus (status, host_id, callback) {
+
+    // Get Connection
+    const pool = getDatabasePool()
+
+
+    // SQL Query
+    var sql = 'UPDATE host  SET status = $1 WHERE host_id = $2';
+                    
+    // Query
+    pool.query (sql, [status, host_id], function (err, res) {
+        if(err) {
+            console.log(err);
+        } else {
+            console.log (res.rows);
+        }
+            return callback (err, res);
+    });
+}
+
+
+function resetPassword (password_hash, user_id, callback) {
+
+    // Get Connection
+    const pool = getDatabasePool()
+
+    // SQL Query 
+    const sql = 'SELECT * FROM "user" WHERE user_id = $1';
+
+
+    pool.query(sql, [user_id], function (err, res) {
+
+        if (err) {
+            return callback(err, null);
+
+        }  else if (res.rows.length > 0) {
+
+            console.log ("Rows Returned")
+
+            // SQL Qeury
+            const sql = 'UPDATE "user" SET password_hash = $1 WHERE user_id = $2';
+            
+             // UPDATE Query
+             pool.query(sql, [password_hash, user_id], function (err, result) {
+
+                console.log(result)
+                if (result.rows.length == 0) {
+                    return callback(err, null);
+
+                } else if (result.rows.length>0) {
+                    return callback(null, res.rows);
+                }
+            });
+        }
+    })
+}
+// Server Available Function 
+
+
 // For Update Host License 
 // function updateHostLicense (license_name, product, version, out_time, updated_time, host_license_id, callback) {
 
@@ -503,6 +768,15 @@ module.exports = {
     getHosts,
     updateHostStatus,
     updateHostGroup,
+    createUser,
+    createrenderJob,
+    deleterenderJob,
+    updateRenderjobsStatus,
+    getRenderJob,
+    updateFrameJobsStatus,
+    updateCompJobsStatus,
+    updatehostStatus,
+    resetPassword
     // updateHostLicense,
     // deleteHost,
     // updateRenderJob
