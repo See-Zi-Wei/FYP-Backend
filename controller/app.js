@@ -24,19 +24,6 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 
-// app.all('http://127.0.0.1:3000', function(req, res, next) {
-//   res.header('Access-Control-Allow-Origin', 'URLs to trust of allow');
-//   res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
-//   res.header('Access-Control-Allow-Headers', 'Content-Type');
-//   headers.append('Access-Control-Allow-Origin', 'http://localhost:3000');
-//   headers.append('Access-Control-Allow-Credentials', 'true');
-//   if ('OPTIONS' == req.method) {
-//   res.sendStatus(200);
-//   } else {
-//     next();
-//   }
-// });
-
 // Check Email Validation
 var checkEmail = {
   validate: function (req,res,next) {
@@ -93,6 +80,12 @@ app.get('/user', (req,res) => {
           if (err) {
             res.status(500);
             res.send(`{"Message":"Internal Server Error"}`);
+  
+        // Extra Validation when Username/Password Incorrect or does not exist in database 
+          } else if (result == 0) {
+            console.log ("Username/Password Not Found!")
+            res.send(`{"Message":"Username/Password not found!"}`);
+            return false;
 
           } else {
           // If there is no error, Print Result
@@ -291,22 +284,51 @@ app.get('/user/:id/status', (req, res) => {
 // POST /comp_job [Comp Job Table] - Create
 app.post('/comp_job', function (req, res) {
 
+  var comp_id = req.body.comp_id;
+  var job_name = req.body.job_name;
   var software = req.body.software;
-  var host = req.body.host;
+  var host_group = req.body.host_group;
   var comp_time = req.body.comp_time;
   var comp_file_path = req.body.comp_file_path;
   var max_job_time = req.body.max_job_time;
   var min_job_time = req.body.min_job_time;
+  var priority = req.body.priority;
 
   // Connect to Database
-  database.createCompJob (software, host, comp_time, comp_file_path, max_job_time, min_job_time, function (err, result) {
+  database.createCompJob (comp_id, job_name, software, host_group, comp_time, comp_file_path, max_job_time, min_job_time, priority, function (err, result) {
 
     // If there is an error, Print Error Status & Message   
     if (err) {
       res.status(500);
+      console.log (job_name)
+      console.log(comp_id)
       res.send(`{"Message":"Internal Server Error"}`);
-
-    } else {
+    }
+      else if (job_name == "") {
+        res.send(`{"Message":"Please Enter the Job Name"}`);
+        return false;
+      }
+      else if (host_group == "") {
+        res.send(`{"Message":"Please Enter the Host Group"}`);
+        return false;
+      }
+      else if (comp_file_path == "") {
+        res.send(`{"Message":"Please Enter the Comp File Path"}`);
+        return false;
+      }
+      else if ( max_job_time == "") {
+        res.send(`{"Message":"Please Enter the Maximum Job Time"}`);
+        return false;
+      }
+      else if (min_job_time == "") {
+        res.send(`{"Message":"Please Enter the Minimum Job Time"}`);
+        return false;
+      }
+      else if (priority == "") {
+        res.send(`{"Message":"Please Enter the Priority"}`);
+        return false;
+      }
+     else {
     // If there is no error, Print Result
       res.status(200)
       console.log ("Successfully created Comp Job!")
@@ -316,16 +338,11 @@ app.post('/comp_job', function (req, res) {
 });
 
 // DELETE /comp_job [Comp Job Table] - Delete
-app.delete('/comp_job', function (req, res) {
+app.delete('/comp_job/:id', function (req, res) {
 
-  var software = req.body.software;
-  var host = req.body.host;
-  var comp_time = req.body.comp_time;
-  var comp_file_path = req.body.comp_file_path;
-  var max_job_time = req.body.max_job_time;
-  var min_job_time = req.body.min_job_time;
+  var comp_id = req.params.id;
 
-  database.deleteCompJob (software, host, comp_time, comp_file_path, max_job_time, min_job_time, function (err, result) {
+  database.deleteCompJob (comp_id, function (err, result) {
   
     // If there is an error, Print Error Status & Message   
     if (err) {
@@ -344,57 +361,52 @@ app.delete('/comp_job', function (req, res) {
 // GET /comp_job [Comp Job Table] - Get 
 app.get('/comp_job', (req, res) => {
 
-  var software = req.body.software;
-  var host = req.body.host;
-  var comp_time = req.body.comp_time;
-  var comp_file_path = req.body.comp_file_path;
-  var max_job_time = req.body.max_job_time;
-  var min_job_time = req.body.min_job_time;
+  // Connect to Database
+  database.getCompJob (function (err, result) {
 
-      // Connect to Database
-      database.getCompJob (software, host, comp_time, comp_file_path, max_job_time, min_job_time, function (err, result) {
+    // If there is an error, Print Error Status & Message
+      if (err) {
+        res.status(500);
+        res.send(`{"Message":"Internal Server Error"}`);
 
-        // If there is an error, Print Error Status & Message
-          if (err) {
-            res.status(500);
-            res.send(`{"Message":"Internal Server Error"}`);
-
-          } else {
-          // If there is no error, Print Result
-              res.status(200).send(result);
-              console.log(result)
-          }
-      });
+      } else {
+      // If there is no error, Print Result
+          res.status(200).send(result);
+          console.log(result)
+      }
+  });
 })
 
-// // PUT /comp_job [Comp Job Table] - Update
-// app.put('/comp_job/:id', function (req, res) {
+// PUT /comp_job [Comp Job Table] - Update
+app.put('/comp_job/:id', function (req, res) {
 
-//   // Attributes required for Update Comp Job (Software, Host, Comp_Time, Comp_file_Path, Max_Job_Time, Min_Job_Time)
-//   var job_id = req.params.job_id;
-//   var software = req.body.software;
-//   var host = req.body.host;
-//   var comp_time = req.body.comp_time;
-//   var comp_file_path = req.body.comp_file_path;
-//   var max_job_time = req.body.max_job_time;
-//   var min_job_time = req.body.min_job_time;
+  // Attributes required for Update Comp Job (Job Name, Host_Group, Max_Job_Time, Min_Job_Time, Priority)
+  var job_name = req.body.job_name;
+  var host_group = req.body.host_group;
+  var max_job_time = req.body.max_job_time;
+  var min_job_time = req.body.min_job_time;
+  var priority = req.body.priority;
+  var comp_id = req.params.id;
 
-//   // Connect to database
-//   database.updateCompJob (software, host, comp_time, comp_file_path, max_job_time, min_job_time, job_id, function (err, result) {
+  // Connect to database
+  database.updateCompJob (job_name, host_group, max_job_time, min_job_time, priority, comp_id, function (err, result) {
 
-//     // If there is an error, Print Error Status & Message 
-//     if (err) {
-//       res.status(500);
-//       res.send(`{"Message":"Internal Server Error"}`);
+    // If there is an error, Print Error Status & Message 
+    if (err) {
+      res.status(500);
+      res.send(`{"Message":"Internal Server Error"}`);
 
-//     } else {
-//     // If there is no error, Print Result
-//       res.status(200)
-//       console.log ("Successfully updated Comp Job!")
-//       res.send(`{"Message":"Successfully updated Comp Job!"}`);
-//     }
-//     });
-//   });
+    } else if (result == 'undefined') {
+      res.send(`{"Message":"Failed to Update Comp Job"}`);
+
+    } else {
+    // If there is no error, Print Result
+      res.status(200)
+      console.log ("Successfully updated Comp Job!")
+      res.send(`{"Message":"Successfully updated Comp Job!"}`);
+    }
+    });
+  });
 
 // GET /host/host_id [Host Table] 
 app.get('/host/:id', (req, res) => {
@@ -490,8 +502,6 @@ app.put('/host/status/:id', function (req, res) {
     });
   });
 
-
-
 //Rhithan's code
 app.post('/user/', function (req, res) {
     console.log(" User id ");
@@ -529,18 +539,14 @@ app.post('/user/', function (req, res) {
     });
 });
 
-
-
+//Rhithan's code
 app.get('/api/listings/:listingsid', function (req, res) {
         var id = req.params.listingsid;
         console.log("READING");
 
     });
 
-
-   
-
-
+//Rhithan's code
 app.post('/render_job', function (req, res) {
   var frame_id = req.body.frame_id
     var render_time = req.body.render_time;
@@ -570,6 +576,7 @@ app.post('/render_job', function (req, res) {
     });
   });
 
+  //Rhithan's code
   app.delete('/render_job', function (req, res) {
 
     var frame_id = req.body.frame_id
@@ -598,6 +605,7 @@ app.post('/render_job', function (req, res) {
     });
   });
 
+  //Rhithan's code
   app.put('/frames/status/:id', function (req, res) {
 
     // Attributes required for Update Status
@@ -625,6 +633,7 @@ app.post('/render_job', function (req, res) {
     });
 
 
+    //Rhithan's code
     app.get('/render_job', (req,res) => {
 
       // Connect to Database
@@ -643,6 +652,7 @@ app.post('/render_job', function (req, res) {
       });
 })
 
+//Rhithan's code
 app.put('/renderjobs/status/:id', function (req, res) {
 
   // Attributes required for Update Status
@@ -669,7 +679,7 @@ app.put('/renderjobs/status/:id', function (req, res) {
     });
   });
 
-  
+//Rhithan's code
 app.put('/compjobs/status/:id', function (req, res) {
 
   // Attributes required for Update Status
@@ -696,6 +706,7 @@ app.put('/compjobs/status/:id', function (req, res) {
     });
   });
 
+  //Rhithan's code
   app.put('/hosts/status/:id', function (req, res) {
 
     // Attributes required for Update Status
@@ -722,6 +733,7 @@ app.put('/compjobs/status/:id', function (req, res) {
       });
     });
 
+    //Rhithan's code
     app.put('/user/:id/password_hash', function (req, res, next) {
 
       var user_id = req.params.id;
@@ -758,87 +770,81 @@ app.put('/compjobs/status/:id', function (req, res) {
           });
   });
 
-// // PUT /host_license/:id FUNCTION updateHostLicense [Host License Table]
-// app.put('/host_license/:id', function (req, res) {
+// PUT /host/:id/redshift FUNCTION updateRedshift [Host Table]
+app.put('/host/redshift/:id', function (req, res) {
 
-//   // Attributes required for Update Host Group
-//   var host_license_id = req.params.id;
-//   var license_name = req.body.license_name;
-//   var product = req.body.product;
-//   var version = req.body.version;
-//   var out_time = req.body.out_time;
-//   var updated_time = req.body.updated_time;
-  
-//   // Connect to database
-//   database.updateHostLicense (license_name, product, version, out_time, updated_time, host_license_id, function (err, result) {
+  // Attributes required for Update Redshift
+  var host_id = req.params.id;
+  var redshift = req.body.redshift;
+
+  // Connect to database
+  database.updateHostLicense (redshift, host_id, function (err, result) {
 
 
-//     // If there is an error, Print Error Status & Message
-//       if (err) {
+    // If there is an error, Print Error Status & Message
+      if (err) {
  
-//         res.status(500);
-//         res.send(`{"Message":"Internal Server Error"}`);
+        res.status(500);
+        res.send(`{"Message":"Internal Server Error"}`);
          
-//       } else {
+      } else {
 
-//         // If there is no error, Print Result
-//         res.status(200);
-//         res.send(`{{"Message":"Host License Updated"}}`);
-//         console.log(result)
-//       }
-//     });
-//   });
+        // If there is no error, Print Result
+        res.status(200);
+        res.send(`{{"Message":"Redshift Updated"}}`);
+        console.log(result)
+      }
+    });
+  });
 
-// // DELETE /host [Host Table] - Delete
-// app.delete('/host/:id', function (req, res) {
+// DELETE /host [Host Table] - Delete 
+app.delete('/host/:id', function (req, res) {
 
-//   var host_id = req.params.id;
+  var host_id = req.params.id;
 
-//   database.deleteHost (host_id, function (err, result) {
+  database.deleteHost (host_id, function (err, result) {
   
-//     // If there is an error, Print Error Status & Message   
-//     if (err) {
-//       res.status(500);
-//       res.send(`{"Message":"Internal Server Error"}`);
+    // If there is an error, Print Error Status & Message   
+    if (err) {
+      res.status(500);
+      res.send(`{"Message":"Internal Server Error"}`);
 
-//     } else {
-//     // If there is no error, Print Result
-//       res.status(200)
-//       console.log ("Successfully deleted Host!")
-//       res.send(`{"Message":"Successfully deleted Host!"}`);
-//     }
-//   });
-// });
+    } else {
+    // If there is no error, Print Result
+      res.status(200)
+      console.log ("Successfully deleted Host!")
+      res.send(`{"Message":"Successfully deleted Host!"}`);
+    }
+  });
+});
 
-// // PUT /render_job [Render Job Table] - Update
-// app.put('/render_job/:id', function (req, res) {
+// PUT /render_job [Render Job Table] - Update
+app.put('/render_job/:id', function (req, res) {
 
-//   // Attributes required for Update Render Job (render_time, done, fail, progress, busy, maya_version, rendere, scene_path, frame_id)
-//   var frame_id = req.params.frame_id
-//   var render_time = req.body.render_time;
-//   var done = req.body.done;
-//   var fail = req.body.fail;
-//   var progress = req.body.progress;
-//   var busy = req.body.busy;
-//   var maya_version = req.body.maya_version;
-//   var renderer = req.body.renderer;
-//   var scene_path = req.body.scene_path;
+  // Attributes required for Update Render Job (job_name, host_group, max_hosts, batch_frames, max_batch_tine, min)_frame_time, priority)
+  var job_name = req.body.job_name;
+  var host_group = req.body.host_group;
+  var max_hosts = req.body.max_hosts;
+  var max_job_time = req.body.max_job_time;
+  var min_job_time = req.body.min_job_time;
+  var priority = req.body.priority;
+  var frame_id = req.params.id;
 
-//   // Connect to database
-//   database.updateRenderJob (render_time, done, fail, progress, busy, maya_version, renderer, scene_path, frame_id, function (err, result) {
+  // Connect to database
+  database.updateRenderJob (job_name, host_group, max_hosts, max_job_time, min_job_time, priority, frame_id, function (err, result) {
 
-//     // If there is an error, Print Error Status & Message 
-//     if (err) {
-//       res.status(500);
-//       res.send(`{"Message":"Internal Server Error"}`);
+    // If there is an error, Print Error Status & Message 
+    if (err) {
+      res.status(500);
+      res.send(`{"Message":"Internal Server Error"}`);
 
-//     } else {
-//     // If there is no error, Print Result
-//       res.status(200)
-//       console.log ("Successfully updated Render Job!")
-//       res.send(`{"Message":"Successfully updated Render Job!"}`);
-//     }
-//     });
-//   });
+    } else {
+    // If there is no error, Print Result
+      res.status(200)
+      console.log ("Successfully updated Render Job!")
+      res.send(`{"Message":"Successfully updated Render Job!"}`);
+    }
+    });
+  });
 
 module.exports = app;

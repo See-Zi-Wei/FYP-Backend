@@ -310,30 +310,24 @@ function getCompJob (software, host, comp_time, comp_file_path, max_job_time, mi
     });
 }
 
-// For Update Comp Job
-// function updateCompJob (software, host, comp_time, comp_file_path, max_job_time, min_job_time, job_id, callback) {
+// For Update Comp Job 
+function updateCompJob (job_name, host_group, max_job_time, min_job_time, priority, comp_id, callback) {
 
-//     // Get Connection
-//     const pool = getDatabasePool();
+    // Get Connection
+    const pool = getDatabasePool();
 
-//     // SQL Query
-//     const sql = 'UPDATE Comp_Job SET software = $1 AND host = $2 AND comp_time = $3 AND comp_file_path = $4 AND max_job_time = $5 AND min_job_time = $6 WHERE job_id = $7';
+    // SQL Query
+    const sql = 'UPDATE comp_Job SET "job_name" = $1 , "host_group" = $2 , "max_job_time" = $3 , "min_job_time" = $4 , "priority" = $5 WHERE comp_id = $6';
 
-//     pool.query (sql, [software, host, comp_time, comp_file_path, max_job_time, min_job_time, job_id], function (err, res) {
-//         if (err) {
-//             return callback(err, null);
-//         }
-//         else {
-//             pool.query(sql, [software, host, comp_time, comp_file_path, max_job_time, min_job_time], function (err, res) {
-//                 if (err) {
-//                     return callback(err, null);
-//                 } else {
-//                     return callback(null, res.rows);
-//                 }
-//             });
-//         }
-//     });
-// }
+    pool.query (sql, [job_name, host_group, max_job_time, min_job_time, priority, comp_id], function (err, res) {
+        if (err) {
+            return callback(err);
+        }
+        else {
+            return callback (null, res.rows);
+        }
+    });
+}
 
 // For GET Host ID [Host Table]
 function getHostID (host_id, callback) {
@@ -421,7 +415,6 @@ function updateHostStatus (status, host_id, callback) {
 
 
 //Rhithan's code
-
 function createUser (user_id,user_role_id,department_id,location_id,password_hash,username,full_name,email,picture,job_title,description,status,created_time,created_by,updated_time,updated_by,last_login_time,last_login_ip , callback) {
 
     // Connect to Database
@@ -447,8 +440,7 @@ function createUser (user_id,user_role_id,department_id,location_id,password_has
          });
  };
 
-
-
+//Rhithan's code
  function resetPassword (password_hash, old_password, user_id, callback) {
 
     // Get Connection
@@ -491,6 +483,7 @@ function createUser (user_id,user_role_id,department_id,location_id,password_has
     })
 }
 
+//Rhithan's code
 function createrenderJob (frame_id,render_time,done,fail,progress,busy,maya_version,renderer,scene_path, callback) {
 
     // Connect to Database
@@ -516,6 +509,7 @@ function createrenderJob (frame_id,render_time,done,fail,progress,busy,maya_vers
          });
  };
 
+ //Rhithan's code
   // For DELETE Comp Job [Comp Job Table]
 function deleterenderJob (frame_id,render_time,done,fail,progress,busy,maya_version,renderer,scene_path, callback) {
 
@@ -542,7 +536,7 @@ function deleterenderJob (frame_id,render_time,done,fail,progress,busy,maya_vers
          });
  };
 
-
+//Rhithan's code
  function updateRenderjobsStatus (status, frame_id, callback) {
 
     // Get Connection
@@ -563,6 +557,7 @@ function deleterenderJob (frame_id,render_time,done,fail,progress,busy,maya_vers
     });
 }
 
+//Rhithan's code
 function getRenderJob (callback) {
 
     // Get Connection
@@ -583,6 +578,7 @@ function getRenderJob (callback) {
     });
 }
 
+//Rhithan's code
 function updateFrameJobsStatus (status, frame_id, callback) {
 
     // Get Connection
@@ -603,7 +599,7 @@ function updateFrameJobsStatus (status, frame_id, callback) {
     });
 }
 
-
+//Rhithan's code
 function updateCompJobsStatus (status, comp_id, callback) {
 
     // Get Connection
@@ -624,7 +620,7 @@ function updateCompJobsStatus (status, comp_id, callback) {
     });
 }
 
-
+//Rhithan's code
 function updatehostStatus (status, host_id, callback) {
 
     // Get Connection
@@ -645,7 +641,7 @@ function updatehostStatus (status, host_id, callback) {
     });
 }
 
-
+//Rhithan's code
 function resetPassword (password_hash, user_id, callback) {
 
     // Get Connection
@@ -681,76 +677,71 @@ function resetPassword (password_hash, user_id, callback) {
         }
     })
 }
-// Server Available Function 
+// For Update Host Redshift
+function updateHostLicense (redshift, host_id, callback) {
+
+    // Get Connection
+    const pool = getDatabasePool()
 
 
-// For Update Host License 
-// function updateHostLicense (license_name, product, version, out_time, updated_time, host_license_id, callback) {
-
-//     // Get Connection
-//     const pool = getDatabasePool()
-
-
-//     // SQL Query
-//     var sql = 'UPDATE host_license SET license_name = "KL_OMENS_48" AND product = "redshift" AND version = "v2020" AND out_time = "00:19" AND updated_time = "00:20" WHERE host_license_id = "1"';
+    // SQL Query
+    var sql = 'UPDATE host SET redshift = $1 WHERE host_id = $2';
                     
-//     // Query
-//     pool.query (sql, [license_name, product, version, out_time, updated_time, host_license_id], function (err, res) {
-//         if(err) {
-//             console.log(err);
-//         } else {
-//             console.log (res.rows);
-//         }
-//             return callback (err, res);
-//     });
-// }
+    // Query
+    pool.query (sql, [redshift, host_id], function (err, res) {
+        if(err) {
+            console.log(err);
+        } else {
+            console.log (res.rows);
+        }
+            return callback (err, res);
+    });
+}
 
- // For DELETE Host [Host Table]
-//  function deleteHost (host_id, callback) {
+//  For DELETE Host [Host Table] FOREIGN KEY ISSUE
+ function deleteHost (host_id, callback) {
 
-//     // Connect to Database
-//     const pool = getDatabasePool();
+    // Connect to Database
+    const pool = getDatabasePool();
  
-//      // SQL Query/Statement to Retrieve Data from Database Tables
-//     const sql = 'DELETE FROM host WHERE host_id = $1';
+     // SQL Query/Statement to Retrieve Data from Database Tables
+    const sql = 'DELETE FROM host WHERE host_id = $1';
  
-//          // SQL Query - Database
-//          pool.query(sql, [host_id], function (err, res) {
+         // SQL Query - Database
+         pool.query(sql, [host_id], function (err, res) {
  
-//               // If error, Print Error
-//            if (err) {
-//              console.log(err);
-//              return callback(err, null);
-//            } 
+              // If error, Print Error
+           if (err) {
+             console.log(err);
+             return callback(err, null);
+           } 
  
-//            // Else, Print Res.rows (Result) 
-//            else {
-//                console.log("Deleted Successfully")
-//                return callback(null, res.rows);
-//            }
-//          });
-//  };
+           // Else, Print Res.rows (Result) 
+           else {
+               console.log("Deleted Successfully")
+               return callback(null, res.rows);
+           }
+         });
+ };
 
  // For Update Render Job
-// function updateRenderJob (render_time, done, fail, progress, busy, maya_version, renderer, scene_path, frame_id, callback) {
+function updateRenderJob (job_name, host_group, max_hosts, max_job_time, min_job_time, priority, frame_id, callback) {
 
-//     // Get Connection
-//     const pool = getDatabasePool()
+    // Get Connection
+    const pool = getDatabasePool()
 
-
-//     // SQL Query
-//     var sql = 'UPDATE render_job SET render_time = $1 AND done = $2 AND fail = $3 AND progress = $4 AND busy = $5 AND maya_version = $6 AND renderer = $7 AND scene_path = $8 WHERE frame_id = $9';
-                    
-//     // Query
-//     pool.query (sql, [render_time, done, fail, progress, busy, maya_version, renderer, scene_path, frame_id], function (err, res) {
-//         if(err) {
-//             console.log(err);
-//         } else {
-//             console.log (res.rows);
-//         }
-//             return callback (err, res);
-//     });
-// }
+    // SQL Query
+    var sql = 'UPDATE render_job SET "job_name" = $1 , "host_group" = $2 , "max_hosts" = $3 , "max_job_time" = $4 , "min_job_time" = $5 , "priority" = $6 WHERE frame_id = $7';
+    
+    // Query
+    pool.query (sql, [job_name, host_group, max_hosts, max_job_time, min_job_time, priority, frame_id], function (err, res) {
+        if(err) {
+            console.log(err);
+        } else {
+            return callback (null, res);
+        }
+    });
+}
 
 module.exports = {
     userLogin,
@@ -763,7 +754,7 @@ module.exports = {
     createCompJob,
     deleteCompJob,
     getCompJob,
-    // updateCompJob,
+    updateCompJob,
     getHostID,
     getHosts,
     updateHostStatus,
@@ -776,8 +767,8 @@ module.exports = {
     updateFrameJobsStatus,
     updateCompJobsStatus,
     updatehostStatus,
-    resetPassword
-    // updateHostLicense,
-    // deleteHost,
-    // updateRenderJob
+    resetPassword,
+    updateHostLicense,
+    deleteHost,
+    updateRenderJob
 };
